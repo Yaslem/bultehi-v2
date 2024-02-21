@@ -10,17 +10,19 @@ import {useDispatch} from "react-redux";
 import classNames from "classnames";
 import {toastActions} from "../../../../redux/slices/toastSlice";
 import {AddArticleSchema} from "../../../../helpers/Schemas";
-import Error from "../../../auth/components/Error";
+import Error from "../../../components/Error";
 import {createArticle, uploadImage} from "../../../../controllers/Article";
 import {Editor} from "@tinymce/tinymce-react";
+import {useRouter} from "next/navigation";
 export default function Index(
     {
         categoriesProps,
         tagsProps
     }) {
 
+    const router = useRouter()
+
     const [showTab, setShowTab] = useState(0)
-    const [loading, setLoading] = useState(true)
 
     const [categories, setCategories] = useState({
         data: categoriesProps.data,
@@ -35,7 +37,7 @@ export default function Index(
     })
 
     const [catId, setCatId] = useState()
-    const [tagId, setTagId] = useState([])
+    const [tagsIds, setTagsIds] = useState([])
     const [statusArticle, setStatus] = useState()
     const [commentStatus, setCommentStatus] = useState(true)
     const [image, setImage] = useState()
@@ -59,13 +61,18 @@ export default function Index(
             const formData = new FormData()
             formData.append("image", image)
             const { message, status, data } = await createArticle({
-                title, body, category: catId, tags: tagId, commentStatus, status: statusArticle, summary, formData
+                title, body, category: catId, tags: tagsIds, commentStatus, status: statusArticle, summary, formData
             })
             if(status === "success"){
                 setIsLoading(false)
                 dispatch(toastActions.setIsShow(true))
                 dispatch(toastActions.setStatus(status))
                 dispatch(toastActions.setMessage(message))
+
+                setTimeout(() => {
+                    router.push("/dash/articles")
+                }, 3000)
+
             }else {
                 dispatch(toastActions.setIsShow(true))
                 dispatch(toastActions.setStatus(status))
@@ -86,7 +93,6 @@ export default function Index(
             resolve(res.location);
         })
     });
-
 
     return (
         <Section>
@@ -113,7 +119,7 @@ export default function Index(
                     </div>
                     <div className={"border rounded-lg flex flex-col gap-2"}>
                         <Editor
-                            apiKey='1pwbld79ntpeigxurq9pxzrgu5oi3683qsvfk0lc7essw9d8'
+                            apiKey={process.env.EDITOR_API_KEY}
                             onEditorChange={(newValue, editor) => {
                                 setBody(newValue);
                             }}
@@ -148,6 +154,7 @@ export default function Index(
                                             id={"public"}
                                             name={"status"}
                                             value={"PUBLIC"}
+                                            checked={statusArticle === "PUBLIC"}
                                             type={"radio"}
                                             onChange={(e) => setStatus(e.target.value)}
                                         />
@@ -159,6 +166,7 @@ export default function Index(
                                             name={"status"}
                                             value={"HIDDEN"}
                                             type={"radio"}
+                                            checked={statusArticle === "HIDDEN"}
                                             onChange={(e) => setStatus(e.target.value)}
                                         />
                                     </li>
@@ -197,6 +205,7 @@ export default function Index(
                                                             id={category.id}
                                                             name={"category"}
                                                             value={category.id}
+                                                            checked={catId == category.id}
                                                             type={"radio"}
                                                             onChange={(e) => setCatId(e.target.value)}
                                                         />
@@ -227,7 +236,7 @@ export default function Index(
                                     <div className={"flex flex-col gap-2"}>
                                         <Input
                                             name={"search"}
-                                            type={"text"} placeholder={"اكتب اسم التصنيف"}
+                                            type={"text"} placeholder={"اكتب اسم الوسم"}
                                             onChange={(e) => {
                                                 setTags({
                                                     data: tagsProps.data.filter((word) => word.name.indexOf(e.target.value) > -1),
@@ -245,16 +254,17 @@ export default function Index(
                                                             name={"tag"}
                                                             value={tag.id}
                                                             type={"checkbox"}
+                                                            checked={tagsIds.includes(tag.id)}
                                                             onChange={(e) => {
                                                                 if(e.target.checked){
-                                                                    if (!tagId.includes(e.target.value)){
-                                                                        setTagId((prevTags) => [
+                                                                    if (!tagsIds.includes(tag.id)){
+                                                                        setTagsIds((prevTags) => [
                                                                             ...prevTags,
-                                                                            e.target.value,
+                                                                            tag.id,
                                                                         ])
                                                                     }
                                                                 }else {
-                                                                    setTagId(tagId.filter(tag => tag !== e.target.value))
+                                                                    setTagsIds(tagsIds.filter(tagFilter => tagFilter !== tag.id))
                                                                 }
                                                             }}
                                                         />
@@ -321,6 +331,7 @@ export default function Index(
                                 <textarea
                                     name={"summary"}
                                     placeholder={"اكتب وصفا قصيرا عن المقالة"}
+                                    defaultValue={summary}
                                     onChange={(e) => setSummary(e.target.value)}
                                     className={"w-full h-36 border rounded-lg outline-none p-2 placeholder:text-xs placeholder:text-slate-500"}></textarea>
                             </div>
@@ -343,7 +354,13 @@ export default function Index(
                                         className={"comments"}
                                         id={"comments"}
                                         checked={commentStatus}
-                                        onChange={(e) => setCommentStatus(e.target.checked)}
+                                        onChange={(e) => {
+                                            if(e.target.checked){
+                                                setCommentStatus(true)
+                                            }else {
+                                                setCommentStatus(false)
+                                            }
+                                        }}
                                         type={"checkbox"}/>
                                 </div>
                             </>

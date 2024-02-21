@@ -3,8 +3,8 @@ import {getTags} from "../../../../controllers/Tag";
 import Index from "./Index";
 
 export default async function Page() {
-    const { data: categories, status: categoriesStatus, message: categoriesMessage } = await getCategories()
-    const { data: tags, status: tagsStatus, message: tagsMessage } = await getTags()
+    const { data: categories, status: categoriesStatus, message: categoriesMessage } = await getCategories("ARTICLE")
+    const { data: tags, status: tagsStatus, message: tagsMessage } = await getTags("ARTICLE")
     return (
         <Index
             categoriesProps={{

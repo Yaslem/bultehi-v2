@@ -2,7 +2,7 @@
 import Toast from "../../components/Toast";
 import SectionAuth from "../components/SectionAuth";
 import Input from "../../components/Input";
-import Error from "../components/Error";
+import Error from "../../components/Error";
 import {useRef, useState} from "react";
 import {ResetSchema} from "../../../helpers/Schemas";
 import {authReset} from "../../../controllers/Auth";

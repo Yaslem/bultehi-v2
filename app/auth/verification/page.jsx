@@ -10,7 +10,7 @@ import Link from "next/link";
 import {useSearchParams} from "next/navigation";
 import {LoginSchema} from "../../../helpers/Schemas";
 import {authLogin, authVerification} from "../../../controllers/Auth";
-import Error from "../components/Error";
+import Error from "../../components/Error";
 
 export default function Page(){
 

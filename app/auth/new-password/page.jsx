@@ -2,7 +2,7 @@
 import Toast from "../../components/Toast";
 import SectionAuth from "../components/SectionAuth";
 import Input from "../../components/Input";
-import Error from "../components/Error";
+import Error from "../../components/Error";
 import {useCallback, useEffect, useRef, useState} from "react";
 import {NewPasswordSchema} from "../../../helpers/Schemas";
 import {authNewPassword} from "../../../controllers/Auth";

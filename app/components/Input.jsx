@@ -9,17 +9,18 @@ export default function Input(
         placeholder,
         defaultValue,
         minLength,
-        isError = false
+        isError = false,
+        error = null
     }){
 
     return (
-        <div className={"flex flex-col gap-2"}>
+        <div className={"flex flex-col w-full gap-2"}>
             {
                 label && <label htmlFor={name} className={"text-xs font-medium text-slate-600"}>{label}</label>
             }
             <input
                 className={classNames({
-                    "bg-white p-2 text-xs font-medium outline-0 focus:ring-2 focus:ring-indigo-600 border rounded-lg": true,
+                    "bg-stone-50 p-2 text-xs font-medium outline-0 focus:ring-2 focus:ring-indigo-600 border rounded-lg": true,
                     "placeholder:text-red-500 focus:border-0 focus:ring-red-500 border-red-500": isError
                 })}
                 type={type}
@@ -31,6 +32,7 @@ export default function Input(
                 min={minLength}
                 onChange={onChange}
             />
+            { error }
         </div>
     )
 }

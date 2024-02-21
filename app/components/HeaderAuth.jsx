@@ -51,12 +51,12 @@ export default function HeaderAuth( { user } ) {
                     {
                         !user.image &&
                         <span onClick={() => setShow(!show)} title={user.name} className={"p-2 cursor-pointer flex items-center justify-center bg-white rounded-full w-10 h-10 border"}>
-                    <FaUserTie className={"text-xl text-indigo-700 hover:text-indigo-600"} />
-                </span>
+                            <FaUserTie className={"text-xl text-indigo-700 hover:text-indigo-600"} />
+                        </span>
                     }
                     {
                         user.image &&
-                        <Image onClick={() => setShow(!show)} title={user.name} className={"cursor-pointer rounded-full w-10 h-10 border"} src={user?.image} alt={"صورة النستخدم"} width={30} height={30} />
+                        <Image onClick={() => setShow(!show)} title={user.name} className={"cursor-pointer ring-2 ring-indigo-300 hover:ring-indigo-200 object-cover rounded-full w-10 h-10 border"} src={user?.image} alt={"صورة النستخدم"} width={30} height={30} />
                     }
                     {
                         show &&

@@ -55,7 +55,7 @@ export default function Sidebar(){
         {
             title: "المنح",
             icon: <FaUserGraduate className={"text-lg"} />,
-            href: "/dash/articles",
+            href: "/dash/grants",
             isActive: function () {
                 return  pathname.includes(this.href)
             }

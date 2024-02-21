@@ -17,13 +17,15 @@ body {
 }
 
 canvas {
-  width: 450px !important;
-  margin-left: auto !important;
-  margin-right: 0 !important;
+  width: 400px !important;
+  position: absolute;
+  right: 0;
+  top: 0;
 }
 
 ::-webkit-scrollbar {
   width: 4px;
+
 }
 
 ::-webkit-scrollbar-track {

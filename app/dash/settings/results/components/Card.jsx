@@ -16,7 +16,7 @@ import {MdEdit, MdTypeSpecimen} from "react-icons/md";
 import {WiMoonAltFirstQuarter} from "react-icons/wi";
 import {BsTrash3Fill} from "react-icons/bs";
 import {TbProgress} from "react-icons/tb";
-import Error from "../../../../auth/components/Error";
+import Error from "../../../../components/Error";
 
 export default function Card({data, status, message, model, title, handel, isLoading, formRef, children }) {
 

@@ -19,7 +19,7 @@ export default function SectionAuth(
         <section className={"w-[300px] mx-auto mb-5 mt-10 flex flex-col gap-4"}>
             <h1 className={"font-bold text-2xl text-slate-700 text-center"}>{title}</h1>
             <form ref={formRef} onSubmit={handel} className={"flex flex-col gap-3"}>
-                <div className={"flex flex-col gap-3 bg-stone-50 border border-dashed rounded-lg p-2"}>
+                <div className={"flex flex-col gap-3 bg-white border border-dashed rounded-lg p-2"}>
                     { children }
                 </div>
                 <Button isLoading={isLoading} title={titleSubmit}

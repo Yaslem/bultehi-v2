@@ -13,7 +13,10 @@ import ParseHTML from "../../../helpers/ParseHTML";
 import {TbFileDownload} from "react-icons/tb";
 import Table, {Td} from "../../components/Table";
 import {useDispatch, useSelector} from "react-redux";
-import {cartActions} from "../../../redux/slices/cartSlice";
+import {
+    addItemToServer,
+    cartActions,
+} from "../../../redux/slices/cartSlice";
 import {toastActions} from "../../../redux/slices/toastSlice";
 
 export default function BookId({book}) {
@@ -32,8 +35,8 @@ export default function BookId({book}) {
 
     return (
         <Section>
-            <div className={"border rounded-lg flex flex-col overflow-hidden"}>
-                <div className={"bg-stone-50 p-3 border-b font-bold text-slate-700 text-base"}> {book.title} </div>
+            <div className={"border bg-white rounded-lg flex flex-col overflow-hidden"}>
+                <div className={"p-3 border-b font-bold text-slate-700 text-base"}> {book.title} </div>
                 <div className={"flex gap-4 p-2 pt-4 shadow-inner"}>
                     <Image
                         className={"w-fit border self-center h-60 rounded-lg"}
@@ -131,18 +134,27 @@ export default function BookId({book}) {
                                     onClick={() => {
                                         if(items.length > 0){
                                             items.map((item, index) => {
-                                                if(item.id !== book.id){
+                                                if(item.book.id !== book.id){
                                                     dispatch(cartActions.add(
                                                         {
-                                                            id: book.id,
-                                                            title: book.title,
-                                                            image: book.image,
-                                                            priceBook: parseInt(book.price),
-                                                            numberOfCopies: parseInt(book.numberOfCopies),
-                                                            price: parseInt(book.price),
-                                                            copies: 1,
 
+                                                            book: {
+                                                                id: book.id,
+                                                                title: book.title,
+                                                                image: book.image,
+                                                                numberOfCopies: parseInt(book.numberOfCopies),
+                                                                price: parseInt(book.price),
+
+                                                            },
+                                                            priceAll: parseInt(book.price),
+                                                            quantity: 1
                                                         }))
+
+                                                    dispatch(addItemToServer({
+                                                        id: book.id,
+                                                        price: book.price
+                                                    }))
+
                                                     dispatch(toastActions.setIsShow(true))
                                                     dispatch(toastActions.setStatus("success"))
                                                     dispatch(toastActions.setMessage("تم إضافة الكتاب بنجاح إلى السلة."))
@@ -155,15 +167,22 @@ export default function BookId({book}) {
                                         } else {
                                             dispatch(cartActions.add(
                                                 {
-                                                    id: book.id,
-                                                    title: book.title,
-                                                    image: book.image,
-                                                    priceBook: parseInt(book.price),
-                                                    numberOfCopies: parseInt(book.numberOfCopies),
-                                                    price: parseInt(book.price),
-                                                    copies: 1,
+                                                    book: {
+                                                        id: book.id,
+                                                        title: book.title,
+                                                        image: book.image,
+                                                        numberOfCopies: parseInt(book.numberOfCopies),
+                                                        price: parseInt(book.price),
 
+                                                    },
+                                                    priceAll: parseInt(book.price),
+                                                    quantity: 1
                                                 }))
+
+                                            dispatch(addItemToServer({
+                                                id: book.id,
+                                                price: book.price
+                                            }))
 
                                             dispatch(toastActions.setIsShow(true))
                                             dispatch(toastActions.setStatus("success"))

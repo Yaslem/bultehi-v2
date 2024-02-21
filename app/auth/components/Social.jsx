@@ -14,11 +14,11 @@ export default function Social() {
 
     return (
         <section className={"flex items-start gap-3"}>
-            <div onClick={() => onClick("google")} className={"p-2 w-full bg-stone-50 cursor-pointer hover:border-indigo-600 rounded-lg border border-dashed items-center flex flex-col gap-2"}>
+            <div onClick={() => onClick("google")} className={"p-2 w-full bg-white cursor-pointer hover:border-indigo-600 rounded-lg border border-dashed items-center flex flex-col gap-2"}>
                 <FaGoogle className={"text-2xl text-slate-600"} />
                 <span className={"text-xs font-medium text-slate-500"}>جوجل</span>
             </div>
-            <div onClick={() => onClick("facebook")} className={"p-2 w-full bg-stone-50 cursor-pointer hover:border-indigo-600 rounded-lg border border-dashed items-center flex flex-col gap-2"}>
+            <div onClick={() => onClick("facebook")} className={"p-2 w-full bg-white cursor-pointer hover:border-indigo-600 rounded-lg border border-dashed items-center flex flex-col gap-2"}>
                 <BsFacebook className={"text-2xl text-slate-600"} />
                 <span className={"text-xs font-medium text-slate-500"}>فيسبوك</span>
             </div>

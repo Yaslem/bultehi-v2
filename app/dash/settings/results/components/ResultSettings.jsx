@@ -6,7 +6,7 @@ import {toastActions} from "../../../../../redux/slices/toastSlice";
 import {ResultSettingsSchema} from "../../../../../helpers/Schemas";
 import {ResultSettings} from "../../../../../controllers/ResultSettings";
 import Card from "./Card";
-import Error from "../../../../auth/components/Error";
+import Error from "../../../../components/Error";
 
 export default function ResultSetting({title, model, placeholder, data, status, message}) {
     const dispatch = useDispatch()

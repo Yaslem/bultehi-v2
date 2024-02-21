@@ -10,7 +10,7 @@ import {useDispatch} from "react-redux";
 import {toastActions} from "../../../../redux/slices/toastSlice";
 import {CategorySchema} from "../../../../helpers/Schemas";
 import {createCategory, deleteCategory, updateCategory} from "../../../../controllers/Category";
-import Error from "../../../auth/components/Error";
+import Error from "../../../components/Error";
 import {DeleteIcon, EditIcon} from "../../../components/ActionsIcon";
 import Image from "next/image";
 import Nothing from "../../../components/Nothing";

@@ -1,7 +1,7 @@
 "use server"
 import prisma from "../helpers/db";
-import upload from "../helpers/Upload";
-import { AddArticleSchema, AddBookSchema } from "../helpers/Schemas";
+import upload, {deleteFile, isFileExist} from "../helpers/Upload";
+import { AddBookSchema } from "../helpers/Schemas";
 import sendMessage from "../helpers/SendMessage";
 import useCurrentUser from "./CurrentUser";
 import {revalidatePath} from "next/cache";
@@ -73,7 +73,6 @@ export const createBook = async ({ title, numberOfPages, numberOfCopies, publish
                 return sendMessage(true, 200, "تم إنشاء الكتاب بنجاح")
 
             } catch (e) {
-                console.log(e)
                 return sendMessage(false, 400, "حدث خطأ ما.")
             }
         }
@@ -83,6 +82,161 @@ export const createBook = async ({ title, numberOfPages, numberOfCopies, publish
     }
 }
 
+export const updateBook = async ({ id, title, image, numberOfPages, numberOfCopies, publishYear, price, isFree, description, categoryId, tags, publisherId, authors, formData }) => {
+    const user = await useCurrentUser()
+    const validated = AddBookSchema.safeParse({
+        title, numberOfPages: parseInt(numberOfPages), image: formData.get("image"), publishYear: new Date(publishYear),
+        publisher: String(publisherId),
+        category: String(categoryId),
+        description,
+    })
+    if (validated.success) {
+
+        if (!isFree && price === undefined || price?.length === 0 || parseInt(price) < 1) {
+            return sendMessage(false, 400, "السعر مطلوب.")
+        } else if (!isFree && numberOfCopies === undefined || numberOfCopies?.length === 0 || parseInt(numberOfCopies) < 1) {
+            return sendMessage(false, 400, "عدد النسخ مطلوب.")
+        } if (authors.length === 0) {
+            return sendMessage(false, 400, "المؤلف مطلوب.")
+        } else {
+
+            if(formData.get("image") !== "undefined" && formData.get("image") !== image){
+                if(await isFileExist('books', image)){
+                    await deleteFile('books', image)
+                }
+
+                const filename = await upload("books", formData.get("image"))
+
+                const isbn = Math.floor(Math.random() * (1000000 - 1000) + 1000)
+
+                try {
+                    await prisma.book.update({
+                        where: {
+                          id: parseInt(id)
+                        },
+                        data: {
+                            title,
+                            isbn,
+                            numberOfPages: parseInt(numberOfPages),
+                            numberOfCopies: isFree ? null : parseInt(numberOfCopies),
+                            publishYear: new Date(publishYear),
+                            price: isFree ? null : price,
+                            isFree,
+                            description,
+                            image: filename,
+                            categoryId: parseInt(categoryId),
+                            userId: parseInt(user.id),
+                            publisherId: parseInt(publisherId),
+                            authors: {
+                                deleteMany: authors.map(author => {
+                                    return  {
+                                        authorId: parseInt(author)
+                                    }
+                                }),
+                                create: authors.map(author => {
+                                    return {
+                                        assignedBy: user.name,
+                                        author: {
+                                            connect: {
+                                                id: parseInt(author),
+                                            }
+                                        }
+                                    }
+                                }),
+                            },
+                            tags: {
+                                deleteMany: tags.map(tag => {
+                                    return  {
+                                        tagId: parseInt(tag)
+                                    }
+                                }),
+                                create: tags.map(tag => {
+                                    return {
+                                        assignedBy: user.name,
+                                        tag: {
+                                            connect: {
+                                                id: parseInt(tag),
+                                            }
+                                        }
+                                    }
+                                }),
+                            },
+                        }
+                    })
+                    revalidatePath("/dash/books")
+                    return sendMessage(true, 200, "تم تحديث الكتاب بنجاح")
+
+                } catch (e) {
+                    return sendMessage(false, 400, "حدث خطأ ما.")
+                }
+            } else {
+                const isbn = Math.floor(Math.random() * (1000000 - 1000) + 1000)
+                try {
+                    await prisma.book.update({
+                        where: {
+                            id: parseInt(id)
+                        },
+                        data: {
+                            title,
+                            isbn,
+                            numberOfPages: parseInt(numberOfPages),
+                            numberOfCopies: isFree ? null : parseInt(numberOfCopies),
+                            publishYear: new Date(publishYear),
+                            price: isFree ? null : price,
+                            isFree,
+                            description,
+                            categoryId: parseInt(categoryId),
+                            userId: parseInt(user.id),
+                            publisherId: parseInt(publisherId),
+                            authors: {
+                                deleteMany: authors.map(author => {
+                                    return  {
+                                        authorId: parseInt(author)
+                                    }
+                                }),
+                                create: authors.map(author => {
+                                    return {
+                                        assignedBy: user.name,
+                                        author: {
+                                            connect: {
+                                                id: parseInt(author),
+                                            }
+                                        }
+                                    }
+                                }),
+                            },
+                            tags: {
+                                deleteMany: tags.map(tag => {
+                                    return  {
+                                        tagId: parseInt(tag)
+                                    }
+                                }),
+                                create: tags.map(tag => {
+                                    return {
+                                        assignedBy: user.name,
+                                        tag: {
+                                            connect: {
+                                                id: parseInt(tag),
+                                            }
+                                        }
+                                    }
+                                }),
+                            },
+                        }
+                    })
+                    revalidatePath("/dash/books")
+                    return sendMessage(true, 200, "تم تحديث الكتاب بنجاح")
+
+                } catch (e) {
+                    return sendMessage(false, 400, "حدث خطأ ما.")
+                }
+            }
+        }
+
+    } else {
+        return sendMessage(false, 400, "بعض البيانات مطلوبة.", validated.error.format())
+    }
+}
 export const getBooks = async () => {
     const books = await prisma.book.findMany({
         include: {
@@ -115,9 +269,13 @@ export const getBookById = async (id) => {
                     author: true
                 }
             },
+            tags: {
+                include: {
+                    tag: true
+                }
+            },
             publisher: true,
             category: true,
-            user: true,
         }
     })
 
@@ -125,5 +283,22 @@ export const getBookById = async (id) => {
         return sendMessage(true, 200, "تم جلب الكتاب بنجاح", book)
     }
     return redirect("/books")
+
+}
+
+export const deleteBook = async (id, image) => {
+
+    if(await isFileExist('books', image)){
+        await deleteFile('books', image)
+    }
+
+    await prisma.book.delete({
+        where: {
+            id: parseInt(id)
+        },
+    })
+
+    revalidatePath("/dash/books")
+    return sendMessage(true, 200, "تم حذف الكتاب بنجاح")
 
 }

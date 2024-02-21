@@ -3,7 +3,7 @@ import Input from "../../components/Input";
 import {useEffect, useRef, useState} from "react";
 import Toast from "../../components/Toast";
 import SectionAuth from "../components/SectionAuth";
-import Error from "../components/Error";
+import Error from "../../components/Error";
 import {LoginSchema} from "../../../helpers/Schemas";
 import {authLogin} from "../../../controllers/Auth";
 import {useRouter, useSearchParams} from "next/navigation";

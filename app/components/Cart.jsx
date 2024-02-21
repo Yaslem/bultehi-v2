@@ -1,19 +1,25 @@
 "use client"
 import {IoClose, IoCloudDownloadSharp} from "react-icons/io5";
 import {useDispatch, useSelector} from "react-redux";
-import {cartActions} from "../../redux/slices/cartSlice";
+import {
+    addCopyItemToServer,
+    cartActions,
+    cartActionsAddToServer, deleteAllItemsFromServer,
+    deleteCopyItemFromServer, deleteItemFromServer
+} from "../../redux/slices/cartSlice";
 import Table, {Td} from "./Table";
 import Image from "next/image";
-import Error from "../auth/components/Error";
+import Error from "./Error";
 import classNames from "classnames";
 import {DeleteIcon} from "./ActionsIcon";
 import LinkBtn from "./Link";
+import {addCopyItem} from "../../controllers/Cart";
 export default function Cart(){
     const dispatch = useDispatch()
     const items = useSelector(state => state.cart.items)
     const priceAll = useSelector(state => state.cart.priceAll)
     const error = useSelector(state => state.cart.error)
-    console.log(error)
+    console.log(items)
     return (
         <section className={"fixed z-50 w-full h-full flex top-0 left-0"}>
             <div
@@ -33,7 +39,7 @@ export default function Cart(){
                         <Error status={error.status} message={error.message} />
                     }
                     <div className={"flex flex-col flex-grow gap-3"}>
-                        <div className={"flex-grow"}>
+                        <div className={"flex-grow flex flex-col gap-4"}>
                             {
                                 items.length > 0 &&
                                 items.map((item, index) =>
@@ -42,33 +48,60 @@ export default function Cart(){
                                             className={"w-fit border self-center h-[77px] object-cover rounded-lg"}
                                             width={100}
                                             height={100}
-                                            src={`/uploads/books/${item.image}`} alt={"صورة الكتاب"}
+                                            src={`/uploads/books/${item.book.image}`} alt={"صورة الكتاب"}
                                         />
                                         <div className={"flex flex-col flex-grow gap-3"}>
-                                            <h2 className={"font-semibold flex-grow text-slate-700"}>{item.title}</h2>
+                                            <h2 className={"font-semibold flex-grow text-slate-700"}>{item.book.title}</h2>
                                             <div className={"flex items-center justify-between gap-3"}>
-                                                <span className={"font-bold text-slate-700"}>{item.price}</span>
+                                                <span className={"font-bold text-slate-700"}>{item.priceAll}</span>
                                                 <div className={"flex items-center p-1 rounded-lg border border-dashed gap-2"}>
                                                     <button disabled={error.status === "error"}
-                                                            onClick={() => dispatch(cartActions.addCopy(item.id))}
+                                                            onClick={ () => {
+                                                                dispatch(cartActions.addCopy(item.id))
+                                                                dispatch(addCopyItemToServer({
+                                                                    id: item.id,
+                                                                    price: item.book.price
+                                                                }))
+                                                            }}
                                                             className={classNames({
                                                                 "w-8 cursor-pointer h-8 rounded-full border border-dashed border-blue-200 bg-blue-50 text-blue-600 font-medium text-xl flex items-center justify-center": true,
                                                                 "cursor-not-allowed": error.status === "error"
                                                             })}>+
                                                     </button>
-                                                    <span className={"font-medium"}>{item.copies}</span>
+                                                    <span className={"font-medium"}>{item.quantity}</span>
                                                     <button disabled={error.status === "-error"}
-                                                            onClick={() => dispatch(cartActions.deleteCopy(item.id))}
+                                                            onClick={() => {
+                                                                dispatch(cartActions.deleteCopy(item.id))
+
+                                                                dispatch(deleteCopyItemFromServer({
+                                                                    id: item.id,
+                                                                    price: item.book.price
+                                                                }))
+                                                            }}
                                                             className={classNames({
                                                                 "w-8 cursor-pointer h-8 rounded-full border border-dashed border-red-200 bg-red-50 text-red-600 font-medium text-xl flex items-center justify-center": true,
                                                                 "cursor-not-allowed": error.status === "-error"
                                                             })}>-
                                                     </button>
                                                 </div>
-                                                <DeleteIcon onClick={async () => {
+                                                <DeleteIcon onClick={() => {
                                                     dispatch(cartActions.delete({
                                                         id: item.id,
-                                                        price: item.price
+                                                        price: item.book.price
+                                                    }))
+
+                                                    dispatch(deleteItemFromServer({
+                                                        id: item.id,
+                                                        book: {
+                                                            id: item.book.id,
+                                                            title: item.book.title,
+                                                            image: item.book.image,
+                                                            numberOfCopies: parseInt(item.book.numberOfCopies),
+                                                            price: parseInt(item.book.price),
+
+                                                        },
+                                                        priceAll: parseInt(item.book.price),
+                                                        quantity: item.quantity
                                                     }))
                                                 }}/>
                                             </div>
@@ -89,7 +122,10 @@ export default function Cart(){
                                 </li>
                                 <li>
                                     <DeleteIcon onClick={async () => {
-                                        dispatch(cartActions.deleteAll())
+                                        dispatch(cartActions.deleteAll(items))
+
+                                        dispatch(deleteAllItemsFromServer({items}))
+
                                     }}/>
                                 </li>
                             </ul>

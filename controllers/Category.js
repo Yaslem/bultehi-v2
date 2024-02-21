@@ -70,7 +70,11 @@ export const getCategories = async (type) => {
             type: type
         },
         include: {
-            articles: true
+            articles: true,
+            books: true,
+            grantsByCollege: true,
+            grantsByPhase: true,
+            grantsBySpecialization: true,
         }
     })
 

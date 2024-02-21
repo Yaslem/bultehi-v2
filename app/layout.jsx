@@ -4,9 +4,10 @@ import './globals.css'
 import dynamic from 'next/dynamic'
 import Redux from "./Redux";
 import useCurrentUser from "../controllers/CurrentUser";
+import {getItems} from "../controllers/Cart";
 
 // const Header = dynamic(() => import('./components/Header'), { ssr: false })
-// const TopHeader = dynamic(() => import('./components/TopHeader'), { ssr: false })
+// const HeaderTop = dynamic(() => import('./components/HeaderTop'), { ssr: false })
 // const Footer = dynamic(() => import('./components/Footer'), { ssr: false })
 
 export const metadata = {
@@ -19,8 +20,9 @@ export const metadata = {
 
 export default async function RootLayout({children}) {
   const user = await useCurrentUser()
+  const { status, data: items } = await getItems()
   return (
-    <Redux user={user}>
+    <Redux itemsFromServer={items} user={user}>
       {children}
     </Redux>
   )

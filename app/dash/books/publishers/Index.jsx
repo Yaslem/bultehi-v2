@@ -9,7 +9,7 @@ import TextArea from "../../../components/TextArea";
 import {useDispatch} from "react-redux";
 import {toastActions} from "../../../../redux/slices/toastSlice";
 import {AuthorSchema, PublisherSchema} from "../../../../helpers/Schemas";
-import Error from "../../../auth/components/Error";
+import Error from "../../../components/Error";
 import {DeleteIcon, EditIcon} from "../../../components/ActionsIcon";
 import Image from "next/image";
 import Nothing from "../../../components/Nothing";

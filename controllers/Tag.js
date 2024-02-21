@@ -70,7 +70,8 @@ export const getTags = async (type) => {
             type: type
         },
         include: {
-            articles: true
+            articles: true,
+            books: true,
         }
     })
 

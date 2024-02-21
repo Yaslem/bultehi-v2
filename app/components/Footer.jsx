@@ -4,7 +4,7 @@ import { FaFacebookF } from "react-icons/fa";
 
 export default function Footer(){
     return (
-        <footer className={"flex flex-col gap-8 border bg-stone-50 py-2 px-4 ring-1 ring-stone-200"}>
+        <footer className={"flex flex-col gap-8 border bg-stone-50 py-2 px-4"}>
             <section className={"flex gap-4 justify-between items-center"}>
                 <h1 className={"text-2xl font-bold text-gray-700"}>بلتيهي</h1>
                 <div>

@@ -1,9 +1,10 @@
 "use server"
 import prisma from "../helpers/db";
 import sendMessage from "../helpers/SendMessage";
-import { ResultSettingsSchema} from "../helpers/Schemas";
+import {ResultSettingsSchema} from "../helpers/Schemas";
 import {revalidatePath} from "next/cache";
-export async function ResultSettings(name, model, slug) {
+
+export async function ResultSettings({name,  nameFr, model, slug}) {
 
     const validated =  ResultSettingsSchema.safeParse({ name })
     if (validated.success) {
@@ -17,16 +18,15 @@ export async function ResultSettings(name, model, slug) {
 
                     await prisma.reslutType.create({
                         data: {
-                            name
+                            name, slug: parseInt(slug)
                         }
                     })
-                    revalidatePath("/dash/settings/results")
+                    revalidatePath("/dash/results/settings")
                     return sendMessage(true, 200, "تم إنشاء النوع بنجاح.")
 
                 } catch (error) {
                     return sendMessage(false, 400, "حدث خطأ ما.")
                 }
-                break;
             case "year":
                 const existingYear = await getYearByName(name)
 
@@ -39,13 +39,12 @@ export async function ResultSettings(name, model, slug) {
                             name
                         }
                     })
-                    revalidatePath("/dash/settings/results")
+                    revalidatePath("/dash/results/settings")
                     return sendMessage(true, 200, "تم إنشاء السنة بنجاح.")
 
                 } catch (error) {
                     return sendMessage(false, 400, "حدث خطأ ما.")
                 }
-                break;
             case "session":
                 const existingSession = await getSessionByName(name)
 
@@ -56,16 +55,33 @@ export async function ResultSettings(name, model, slug) {
                     await prisma.session.create({
                         data: {
                             name,
-                            slug
+                            slug: parseInt(slug)
                         }
                     })
-                    revalidatePath("/dash/settings/results")
+                    revalidatePath("/dash/results/settings")
                     return sendMessage(true, 200, "تم إنشاء الدورة بنجاح.")
 
                 } catch (error) {
                     return sendMessage(false, 400, "حدث خطأ ما.")
                 }
-                break;
+            case "unknown":
+                const existingUnknown= await getUnknownByName(name)
+
+                if (existingUnknown) return sendMessage(false, 404, "القيمة موجودة بالفعل")
+
+                try {
+
+                    await prisma.unknown.create({
+                        data: {
+                            nameAr: name, nameFr
+                        }
+                    })
+                    revalidatePath("/dash/results/settings")
+                    return sendMessage(true, 200, "تم إنشاء القيمة بنجاح.")
+
+                } catch (error) {
+                    return sendMessage(false, 400, "حدث خطأ ما.")
+                }
         }
     } else {
         return sendMessage(false, 400, "بعض البيانات مطلوبة.", validated.error.format())
@@ -73,23 +89,27 @@ export async function ResultSettings(name, model, slug) {
 
 }
 
-export async function updateResultSettings(id, name, model, slug) {
+export async function updateResultSettings({id, name, nameFr, model, slug}) {
 
     const validated =  ResultSettingsSchema.safeParse({ name })
     if (validated.success) {
         switch (model) {
             case "type":
+                const existingType= await getTypeByName(name)
+                if (existingType && existingType.id !== parseInt(id)) return sendMessage(false, 404, "النوع موجود بالفعل")
                 await prisma.reslutType.update({
                     where: {
-                      id: parseInt(id)
+                        id: parseInt(id)
                     },
                     data: {
-                        name
+                        name, slug: parseInt(slug)
                     }
                 })
-                revalidatePath("/dash/settings/results")
+                revalidatePath("/dash/results/settings")
                 return sendMessage(true, 200, "تم تحديث النوع بنجاح.")
             case "year":
+                const existingYear = await getYearByName(name)
+                if (existingYear && existingYear.id !== parseInt(id)) return sendMessage(false, 404, "السنة موجودة بالفعل")
                 await prisma.year.update({
                     where: {
                         id: parseInt(id)
@@ -98,20 +118,35 @@ export async function updateResultSettings(id, name, model, slug) {
                         name
                     }
                 })
-                revalidatePath("/dash/settings/results")
+                revalidatePath("/dash/results/settings")
                 return sendMessage(true, 200, "تم تحديث السنة بنجاح.")
             case "session":
+                const existingSession = await getSessionByName(name)
+                if (existingSession && existingSession.id !== parseInt(id)) return sendMessage(false, 404, "الدورة موجودة بالفعل")
                 await prisma.session.update({
                     where: {
                         id: parseInt(id)
                     },
                     data: {
                         name,
-                        slug
+                        slug: parseInt(slug)
                     }
                 })
-                revalidatePath("/dash/settings/results")
+                revalidatePath("/dash/results/settings")
                 return sendMessage(true, 200, "تم تحديث الدورة بنجاح.")
+            case "unknown":
+                const existingUnknown = await getUnknownByName(name)
+                if (existingUnknown && existingUnknown.id !== parseInt(id)) return sendMessage(false, 404, "القيمة موجودة بالفعل")
+                await prisma.unknown.update({
+                    where: {
+                        id: parseInt(id)
+                    },
+                    data: {
+                        nameAr: name, nameFr
+                    }
+                })
+                revalidatePath("/dash/results/settings")
+                return sendMessage(true, 200, "تم تحديث القيمة بنجاح.")
         }
     } else {
         return sendMessage(false, 400, "بعض البيانات مطلوبة.", validated.error.format())
@@ -120,7 +155,11 @@ export async function updateResultSettings(id, name, model, slug) {
 }
 
 export const getTypes =  async () => {
-    const types = await prisma.reslutType.findMany()
+    const types = await prisma.reslutType.findMany({
+        orderBy: {
+            slug: 'asc',
+        },
+    })
     if(types.length > 0){
         return sendMessage(true, 200,"تم جلب البيانات بنجاح.", types)
     }
@@ -128,15 +167,30 @@ export const getTypes =  async () => {
 }
 
 export const getYears =  async () => {
-    const years = await prisma.year.findMany()
+    const years = await prisma.year.findMany({
+        orderBy: {
+            name: 'desc',
+        },
+    })
     if(years.length > 0){
         return sendMessage(true, 200,"تم جلب البيانات بنجاح.", years)
     }
     return sendMessage(false, 400,"لا توجد بيانات.")
 }
+export const getUnknown =  async () => {
+    const unknown = await prisma.unknown.findMany()
+    if(unknown.length > 0){
+        return sendMessage(true, 200,"تم جلب البيانات بنجاح.", unknown)
+    }
+    return sendMessage(false, 400,"لا توجد بيانات.")
+}
 
 export const getSessions =  async () => {
-    const sessions = await prisma.session.findMany()
+    const sessions = await prisma.session.findMany({
+        orderBy: {
+            slug: 'asc',
+        },
+    })
     if(sessions.length > 0){
         return sendMessage(true, 200,"تم جلب البيانات بنجاح.", sessions)
     }
@@ -144,34 +198,40 @@ export const getSessions =  async () => {
 }
 
 export const getTypeByName =  async (name) => {
-    const type = await prisma.reslutType.findFirst({ where: { name } })
-    return type
+    return await prisma.reslutType.findFirst({where: {name}})
 }
 
 export const deleteType =  async (id) => {
-     await prisma.reslutType.delete({ where: { id: parseInt(id) } })
-    revalidatePath("/dash/settings/results")
+    await prisma.reslutType.delete({ where: { id: parseInt(id) } })
+    revalidatePath("/dash/results/settings")
     return sendMessage(true, 200,"تم حذف البيانات بنجاح.")
 }
 
 export const deleteYear=  async (id) => {
     await prisma.year.delete({ where: { id: parseInt(id) } })
-    revalidatePath("/dash/settings/results")
+    revalidatePath("/dash/results/settings")
     return sendMessage(true, 200,"تم حذف البيانات بنجاح.")
 }
 
+export const deleteUnknown =  async (id) => {
+    await prisma.unknown.delete({ where: { id: parseInt(id) } })
+    revalidatePath("/dash/results/settings")
+    return sendMessage(true, 200,"تم حذف البيانات بنجاح.")
+}
 export const deleteSession=  async (id) => {
     await prisma.session.delete({ where: { id: parseInt(id) } })
-    revalidatePath("/dash/settings/results")
+    revalidatePath("/dash/results/settings")
     return sendMessage(true, 200,"تم حذف البيانات بنجاح.")
 }
 
 export const getYearByName =  async (name) => {
-    const year = await prisma.year.findFirst({ where: { name } })
-    return year
+    return await prisma.year.findFirst({where: {name}})
 }
 
 export const getSessionByName =  async (name) => {
-    const session = await prisma.session.findFirst({ where: { name } })
-    return session
+    return await prisma.session.findFirst({where: {name}})
+}
+
+export const getUnknownByName =  async (nameAr) => {
+    return await prisma.unknown.findFirst({where: {nameAr}})
 }

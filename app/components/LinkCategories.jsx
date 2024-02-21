@@ -11,7 +11,7 @@ export default function LinkCategories(
     }) {
     const router = useRouter()
     return (
-        <Link href={link} className={"flex flex-col hover:border-indigo-600 gap-2 p-2 text-slate-600 text-sm font-medium rounded-lg items-center bg-stone-50 cursor-pointer border border-dashed"}>
+        <Link href={link} className={"flex flex-col hover:border-indigo-600 gap-2 p-2 text-slate-600 text-sm font-medium rounded-lg items-center bg-white cursor-pointer border border-dashed"}>
             { icon }
             <span>{ title }</span>
         </Link>

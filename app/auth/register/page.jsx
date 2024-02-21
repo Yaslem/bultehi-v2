@@ -3,7 +3,7 @@ import Input from "../../components/Input";
 import Button from "../../components/Button";
 import Link from "next/link";
 import {useRef, useState} from "react";
-import Error from "../components/Error";
+import Error from "../../components/Error";
 import {authRegister} from "../../../controllers/Auth";
 import {useRouter} from "next/navigation";
 import { RegisterSchema} from "../../../helpers/Schemas";

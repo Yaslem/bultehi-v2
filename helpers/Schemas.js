@@ -131,7 +131,10 @@ export const AddBookSchema = z.object({
     image: z.object({}, {
         required_error: "الصورة مطلوبة.",
         invalid_type_error: "الصورة غير صالح.",
-    }),
+    }).or(z.string({
+        required_error: "صورة الكتاب مطلوبة.",
+        invalid_type_error: "صورة الكتاب غير صالحة.",
+    })),
     publisher: z.string({
         required_error: "الناشر مطلوب.",
         invalid_type_error: "الناشر غير صالح.",
@@ -143,5 +146,35 @@ export const AddBookSchema = z.object({
     publishYear: z.date( {
         required_error: "تاريخ النشر مطلوب.",
         invalid_type_error: "يجب أن يكون تاريخ النشر تاريخا.",
+    }),
+});
+export const AddGrantSchema = z.object({
+    title: z.string({
+        required_error: "العنوان مطلوب.",
+        invalid_type_error: "العنوان غير صالح.",
+    }).min(2, { message: "العنوان يجب أن يكون أطول من حرفين" }),
+    description: z.string({
+        required_error: "وصف الكتاب مطلوب.",
+        invalid_type_error: "وصف الكتاب غير صالح.",
+    }).min(10, { message: "محتوى وصف الكتاب لا يصلح أن يكون وصفا." }),
+    college: z.number({
+        required_error: "الكلية مطلوبة.",
+        invalid_type_error: "الكلية غير صالحة.",
+    }),
+    phase: z.number({
+        required_error: "المرحلة مطلوبة.",
+        invalid_type_error: "المرحلة غير صالحة.",
+    }),
+    country: z.string({
+        required_error: "الدولة مطلوبة.",
+        invalid_type_error: "الدولة غير صالحة.",
+    }),
+    specialization: z.number( {
+        required_error: "التخصص مطلوب.",
+        invalid_type_error: "التخصص غير صالح.",
+    }),
+    isFree: z.boolean( {
+        required_error: "حالة المنحة مطلوبة.",
+        invalid_type_error: "حالة المنحة غير صالحة.",
     }),
 });

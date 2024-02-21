@@ -10,9 +10,10 @@ import { useDispatch } from "react-redux";
 import classNames from "classnames";
 import { toastActions } from "../../../../redux/slices/toastSlice";
 import { AddBookSchema } from "../../../../helpers/Schemas";
-import Error from "../../../auth/components/Error";
+import Error from "../../../components/Error";
 import { Editor } from "@tinymce/tinymce-react";
 import {createBook} from "../../../../controllers/Book";
+import {useRouter} from "next/navigation";
 
 export default function Index(
     {
@@ -23,7 +24,7 @@ export default function Index(
     }) {
 
     const [showTab, setShowTab] = useState(0)
-    const [loading, setLoading] = useState(true)
+    const router = useRouter()
 
     const [categories, setCategories] = useState({
         data: categoriesProps.data,
@@ -121,7 +122,6 @@ export default function Index(
 
         if (validated.success) {
             setError({})
-            console.log(typeof parseInt(numberOfCopies))
             if (Object.keys(errorSome).length === 0) {
                 const formData = new FormData()
                 formData.append("image", image)
@@ -131,6 +131,11 @@ export default function Index(
                     dispatch(toastActions.setIsShow(true))
                     dispatch(toastActions.setStatus(status))
                     dispatch(toastActions.setMessage(message))
+
+                    setTimeout(() => {
+                        router.push("/dash/books")
+                    }, 3000)
+
                 }else {
                     dispatch(toastActions.setIsShow(true))
                     dispatch(toastActions.setStatus(status))
@@ -146,7 +151,6 @@ export default function Index(
             setError(validated.error.format())
         }
     }
-
 
     return (
         <Section>
@@ -174,7 +178,7 @@ export default function Index(
                     </div>
                     <div className={"border rounded-lg flex flex-col gap-2"}>
                         <Editor
-                            apiKey='1pwbld79ntpeigxurq9pxzrgu5oi3683qsvfk0lc7essw9d8'
+                            apiKey={process.env.EDITOR_API_KEY}
                             onEditorChange={(newValue, editor) => {
                                 setBody(newValue);
                             }}
