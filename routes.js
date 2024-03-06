@@ -12,5 +12,6 @@ export const authRoutes = [
 ]
 
 export const apiAuthPrefix = "/api/auth"
+export const apiBotPrefix = "/api/results/bot"
 
 export const DEFAULT_LOGIN_REDIRECT = "/dash"

@@ -99,6 +99,49 @@ export async function getStudentByNumberAndResultId({resultId, number, url}) {
     }
     return redirect(url)
 }
+
+export async function getResultStudentByNumber({year, type, category, session, number}) {
+    switch (parseInt(category)) {
+        case 5: {
+            const student = await prisma.student.findFirst({
+                where: {
+                    year: {
+                        name: year
+                    },
+                    type: {
+                        nameAr: type
+                    },
+                    session: {
+                        name: session
+                    },
+                    typeResult: {
+                        slug: parseInt(category)
+                    },
+                    number: Number(number),
+                },
+                select: SELECT_DATA_FOR_STUDENT,
+            })
+
+            if(student){
+                return sendMessage(true, 200,"تم جلب البيانات بنجاح.", student)
+            }
+            return sendMessage(false, 400,"لا توجد بيانات.")
+        }
+    }
+
+}
+
+export const getBacTypes =  async () => {
+    const types = await prisma.bacType.findMany({
+        orderBy: {
+            nameAr: 'asc',
+        },
+    })
+    if(types.length > 0){
+        return sendMessage(true, 200,"تم جلب البيانات بنجاح.", types)
+    }
+    return sendMessage(false, 400,"لا توجد بيانات.")
+}
 export async function getResultStudent({resultId, target, value, page = 0, isTitle, searchBy, searchById}) {
 
     const validated = Validate.searchResult.safeParse({value})

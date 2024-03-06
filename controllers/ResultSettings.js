@@ -166,6 +166,7 @@ export const getTypes =  async () => {
     return sendMessage(false, 400,"لا توجد بيانات.")
 }
 
+
 export const getYears =  async () => {
     const years = await prisma.year.findMany({
         orderBy: {
